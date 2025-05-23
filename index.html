@@ -25,9 +25,39 @@
   <script src="static/js/bulma-slider.min.js"></script>
   <script src="static/js/index.js"></script>
   
-  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
-  <script src="static/js/bulma-carousel.min.js"></script>
-
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const selectors = [
+        "#object-addition-carousel",
+        "#nonrigid-carousel"
+      ];
+    
+      selectors.forEach(sel => {
+        // ① attach 후
+        const instances = bulmaCarousel.attach(sel, {
+          slidesToShow:   1,
+          slidesToScroll: 1,
+          loop:           false,
+          navigation:     true,
+          pagination:     false,
+          autoplay:       false,
+          autoplaySpeed: 3000000,
+          infinite:       true,
+        });
+    
+        instances.forEach(carousel => {
+          // ② 즉시 정지
+          carousel.stop();
+    
+          // ③ 슬라이드가 변경될 때마다 다시 멈추기
+          carousel.on('carousel:next', ()  => carousel.stop());
+          carousel.on('carousel:previous', () => carousel.stop());
+          // 또는 범용 이벤트
+          carousel.on('carousel:inited', ()  => carousel.stop());
+        });
+      });
+    });
+    </script>
   <style>
     .abstract-container {
       max-width: 800px;
@@ -177,6 +207,128 @@
       z-index: -1; /* 비디오를 텍스트 뒤로 배치 */
       opacity: 0.9; /* 비디오 투명도 설정 */
     }
+
+    .comparison-section {
+      padding: 2rem 0;
+    }
+    .comparison-section .container {
+      max-width: 1400px; /* adjust up/down to taste */
+      margin: 0 auto;
+    }
+
+    .prompt-info.sample-prompt {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5em;
+      background: #f8f8f8;
+      padding: 0.8em 1em;
+      border-radius: 8px;
+      margin-bottom: 1.5em;
+    }
+    .comparison-title {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .comparison-subtitle {
+      text-align: center;
+      margin: 3rem 0 1.5rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .model-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1rem;
+      margin: 0 auto;
+      max-width: 1400px;
+      padding: 0 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .model-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+      text-align: center;
+      padding: 0.5rem;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+    }
+
+    .samples-row {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1rem;
+      margin: 0 auto;
+      max-width: 1400px;
+      padding: 0 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .sample-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .sample-item video {
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .sample-label {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: #666;
+      text-align: center;
+    }
+
+    .prompt-info {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #333;
+      text-align: center;
+      line-height: 1.4;
+      padding: 0 10px;
+    }
+
+    .prompt-info .source {
+      color: #666;
+      margin-bottom: 0.2rem;
+    }
+
+    .prompt-info .target {
+      color: #333;
+      font-weight: 500;
+    }
+
+    .sample-prompt {
+      font-size: 1.05rem;
+      color: #333;
+      background: #f8f8f8;
+      border-radius: 8px;
+      padding: 0.7em 1.2em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2.5em;
+      margin-bottom: 1.2em;
+      margin-top: 0.5em;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .sample-prompt .source {
+      color: #666;
+      font-weight: 400;
+    }
+    .sample-prompt .target {
+      color: #222;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -271,6 +423,10 @@
       object-fit: cover; /* 비디오를 섹션 크기에 맞게 채움 */
       z-index: -1; /* 비디오를 텍스트 뒤로 배치 */
       opacity: 0.9; /* 비디오 투명도 설정 */
+    }
+
+    .highlight {
+      color : red;
     }
   </style>
 
@@ -535,13 +691,640 @@ video.addEventListener('loadeddata', () => {
   </div>
 </section>
   
-<!--
+<section class="section comparison-section">
+  <div class="container">
+    <h2 class="title is-3 comparison-title">Comparison</h2>
+
+    <!-- Object Addition Carousel -->
+    <h3 class="comparison-subtitle">Object Addition</h3>
+    <div id="object-addition-carousel" 
+         class="carousel" 
+         data-loop="true" 
+         data-navigation="true" 
+         data-pagination="false" 
+         data-autoplay="false" 
+         data-per-slide="1">
+
+      <!-- Sample 1 -->
+      <div class="item">
+        <div class="prompt-info sample-prompt">
+          <div class="prompt-line source">
+            <b>Source (Original) :</b> A person standing still in a snowy landscape
+          </div>
+          <div class="prompt-line target">
+            <b>Target (Edit) :</b> A person standing still in a snowy landscape <span class="highlight">holding a snowboard</span>
+          </div>
+        </div>
+
+        <div class="model-header">
+          <div class="model-name">Original</div>
+          <div class="model-name">TV-LiVE</div>
+          <div class="model-name">CogV2V</div>
+          <div class="model-name">CogInv</div>
+          <div class="model-name">BIVDiff</div>
+          <div class="model-name">RAVE</div>
+          <div class="model-name">VidToMe</div>
+        </div>
+
+        <div class="samples-row">
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/original/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/ours/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/cogv2v/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/coginv/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/bivdiff/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/rave/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/vidtome/1.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample 2 -->
+      <div class="item">
+        <div class="prompt-info sample-prompt">
+          <div class="prompt-line source">
+            <b>Source (Original) :</b> A side view of a dog sitting on the beach
+          </div>
+          <div class="prompt-line target">
+            <b>Target (Edit) :</b> A side view of a dog <span class="highlight">wearing sunglasses</span> sitting on the beach
+          </div>
+        </div>
+
+        <div class="model-header">
+          <div class="model-name">Original</div>
+          <div class="model-name">TV-LiVE</div>
+          <div class="model-name">CogV2V</div>
+          <div class="model-name">CogInv</div>
+          <div class="model-name">BIVDiff</div>
+          <div class="model-name">RAVE</div>
+          <div class="model-name">VidToMe</div>
+        </div>
+
+        <div class="samples-row">
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/original/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/ours/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/cogv2v/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/coginv/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/bivdiff/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/rave/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/vidtome/2.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample 3 -->
+      <div class="item">
+        <div class="prompt-info sample-prompt">
+          <div class="prompt-line source">
+            <b>Source (Original) :</b> A side view of a child painting at an easel
+          </div>
+          <div class="prompt-line target">
+            <b>Target (Edit) :</b> A side view of a child painting at an easel <span class="highlight">wearing a colorful apron</span>
+          </div>
+        </div>
+
+        <div class="model-header">
+          <div class="model-name">Original</div>
+          <div class="model-name">TV-LiVE</div>
+          <div class="model-name">CogV2V</div>
+          <div class="model-name">CogInv</div>
+          <div class="model-name">BIVDiff</div>
+          <div class="model-name">RAVE</div>
+          <div class="model-name">VidToMe</div>
+        </div>
+
+        <div class="samples-row">
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/original/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/ours/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/cogv2v/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/coginv/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/bivdiff/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/rave/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/vidtome/3.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample 4 -->
+      <div class="item">
+        <div class="prompt-info sample-prompt">
+          <div class="prompt-line source">
+            <b>Source (Original) :</b> A turtle is walking on the sand
+          </div>
+          <div class="prompt-line target">
+            <b>Target (Edit) :</b> A turtle <span class="highlight">with a leaf on its back</span> is walking on the sand
+          </div>
+        </div>
+
+        <div class="model-header">
+          <div class="model-name">Original</div>
+          <div class="model-name">TV-LiVE</div>
+          <div class="model-name">CogV2V</div>
+          <div class="model-name">CogInv</div>
+          <div class="model-name">BIVDiff</div>
+          <div class="model-name">RAVE</div>
+          <div class="model-name">VidToMe</div>
+        </div>
+
+        <div class="samples-row">
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/original/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/ours/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/cogv2v/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/coginv/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/bivdiff/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/rave/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/vidtome/4.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample 5 -->
+      <div class="item">
+        <div class="prompt-info sample-prompt">
+          <div class="prompt-line source">
+            <b>Source (Original) :</b> A child is reading under a tree
+          </div>
+          <div class="prompt-line target">
+            <b>Target (Edit) :</b> A child <span class="highlight">with a flashlight</span> is reading under a tree
+          </div>
+        </div>
+
+        <div class="model-header">
+          <div class="model-name">Original</div>
+          <div class="model-name">TV-LiVE</div>
+          <div class="model-name">CogV2V</div>
+          <div class="model-name">CogInv</div>
+          <div class="model-name">BIVDiff</div>
+          <div class="model-name">RAVE</div>
+          <div class="model-name">VidToMe</div>
+        </div>
+
+        <div class="samples-row">
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/original/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/ours/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/cogv2v/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/coginv/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/bivdiff/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/rave/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/rigid/vidtome/5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Non-rigid Video Editing Carousel -->
+    <h3 class="comparison-subtitle" style="margin-top: 3rem;">Non-rigid Video Editing</h3>
+    <div id="nonrigid-carousel" 
+         class="carousel" 
+         data-loop="true" 
+         data-navigation="true" 
+         data-pagination="false" 
+         data-autoplay="false" 
+         data-per-slide="1">
+
+      <!-- Sample 1 -->
+      <div class="item">
+        <div class="prompt-info sample-prompt">
+          <div class="prompt-line source">
+            <b>Source (Original) :</b> A horse standing still in a meadow
+          </div>
+          <div class="prompt-line target">
+            <b>Target (Edit) :</b> A horse <span class="highlight">trotting across the field</span>
+          </div>
+        </div>
+
+        <div class="model-header">
+          <div class="model-name">Original</div>
+          <div class="model-name">TV-LiVE</div>
+          <div class="model-name">CogV2V</div>
+          <div class="model-name">CogInv</div>
+          <div class="model-name">BIVDiff</div>
+          <div class="model-name">RAVE</div>
+          <div class="model-name">VidToMe</div>
+        </div>
+
+        <div class="samples-row">
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/original/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/ours/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/cogv2v/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/coginv/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/bivdiff/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/rave/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/vidtome/1.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample 2 -->
+      <div class="item">
+        <div class="prompt-info sample-prompt">
+          <div class="prompt-line source">
+            <b>Source (Original) :</b> A man standing under a tree with falling leaves
+          </div>
+          <div class="prompt-line target">
+            <b>Target (Edit) :</b> A man <span class="highlight">kneeling to pick up a leaf from the ground</span>
+          </div>
+        </div>
+
+        <div class="model-header">
+          <div class="model-name">Original</div>
+          <div class="model-name">TV-LiVE</div>
+          <div class="model-name">CogV2V</div>
+          <div class="model-name">CogInv</div>
+          <div class="model-name">BIVDiff</div>
+          <div class="model-name">RAVE</div>
+          <div class="model-name">VidToMe</div>
+        </div>
+
+        <div class="samples-row">
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/original/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/ours/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/cogv2v/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/coginv/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/bivdiff/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/rave/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/vidtome/2.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample 3 -->
+      <div class="item">
+        <div class="prompt-info sample-prompt">
+          <div class="prompt-line source">
+            <b>Source (Original) :</b> A dog running in the rain
+          </div>
+          <div class="prompt-line target">
+            <b>Target (Edit) :</b> A dog <span class="highlight">shaking off</span> the rain
+          </div>
+        </div>
+
+        <div class="model-header">
+          <div class="model-name">Original</div>
+          <div class="model-name">TV-LiVE</div>
+          <div class="model-name">CogV2V</div>
+          <div class="model-name">CogInv</div>
+          <div class="model-name">BIVDiff</div>
+          <div class="model-name">RAVE</div>
+          <div class="model-name">VidToMe</div>
+        </div>
+
+        <div class="samples-row">
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/original/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/ours/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/cogv2v/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/coginv/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/bivdiff/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/rave/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/vidtome/3.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample 4 -->
+      <div class="item">
+        <div class="prompt-info sample-prompt">
+          <div class="prompt-line source">
+            <b>Source (Original) :</b> A skier paused on a mountain slope during a light snowfall
+          </div>
+          <div class="prompt-line target">
+            <b>Target (Edit) :</b> A skier <span class="highlight">adjusting their goggles on the snowy mountain slope</span>
+          </div>
+        </div>
+
+        <div class="model-header">
+          <div class="model-name">Original</div>
+          <div class="model-name">TV-LiVE</div>
+          <div class="model-name">CogV2V</div>
+          <div class="model-name">CogInv</div>
+          <div class="model-name">BIVDiff</div>
+          <div class="model-name">RAVE</div>
+          <div class="model-name">VidToMe</div>
+        </div>
+
+        <div class="samples-row">
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/original/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/ours/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/cogv2v/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/coginv/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/bivdiff/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/rave/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/vidtome/4.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample 5 -->
+      <div class="item">
+        <div class="prompt-info sample-prompt">
+          <div class="prompt-line source">
+            <b>Source (Original) :</b> A lamb resting in a meadow
+          </div>
+          <div class="prompt-line target">
+            <b>Target (Edit) :</b> A lamb resting in a meadow <span class="highlight">while rolling over onto its side</span>
+          </div>
+        </div>
+
+        <div class="model-header">
+          <div class="model-name">Original</div>
+          <div class="model-name">TV-LiVE</div>
+          <div class="model-name">CogV2V</div>
+          <div class="model-name">CogInv</div>
+          <div class="model-name">BIVDiff</div>
+          <div class="model-name">RAVE</div>
+          <div class="model-name">VidToMe</div>
+        </div>
+
+        <div class="samples-row">
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/original/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/ours/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/cogv2v/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/coginv/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/bivdiff/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/rave/5.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="sample-item">
+            <video autoplay muted loop playsinline>
+              <source src="assets/comparison/nonrigid/vidtome/5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+  
+
 <footer class="footer">
   <div class="content has-text-centered">
     <p></p>
   </div>
 </footer>
--->
 
 
 </body>
